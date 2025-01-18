@@ -82,4 +82,4 @@ class NewsClient:
 
     @staticmethod
     def _validate_title(title: str) -> bool:
-        return len(title) <= 100
+        return len(title) <= 170
