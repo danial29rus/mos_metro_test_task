@@ -15,7 +15,7 @@ class NewsClient:
 
     async def fetch_news(self) -> list[NewsItem]:
         async with AsyncClient() as client:
-            url = f"{self.base_url.rstrip('/')}/tags.php?metro"
+            url = f"{self.base_url}/tags.php?metro"
             response = await client.get(url)
 
             if response.status_code == 200:
@@ -57,29 +57,28 @@ class NewsClient:
         return date_tag, title_tag, img_tag
 
     @staticmethod
-    def _build_full_image_url(base_url: str, img_path: str | None) -> str | None:
+    def _build_full_image_url(
+        base_url: str, img_path: str | None
+    ) -> str | None:
         if img_path and not img_path.startswith("http"):
-            return f"{base_url.rstrip('/')}/{img_path.lstrip('/')}"
+            return f"{base_url}/{img_path.lstrip('/')}"
         return img_path
 
     @staticmethod
-    def _parse_date(date_str: str) -> datetime:
+    def _parse_date(date_str: str) -> str:
         date_match = re.search(
-            r"(\d{2}\.\d{2}\.\d{4})\s*(\d{2}:\d{2})", date_str
+            r"(\d{2}\.\d{2}\.\d{4})", date_str
         )
 
         if date_match:
             date_part: str = date_match.group(1)
-            time_part: str = date_match.group(2)
 
             try:
-                return datetime.strptime(
-                    f"{date_part} {time_part}", "%d.%m.%Y %H:%M"
-                )
+                return datetime.strptime(date_part, "%d.%m.%Y").strftime("%Y-%m-%d")
             except ValueError:
-                return datetime.now()
+                return datetime.now().strftime("%Y-%m-%d")
 
-        return datetime.now()
+        return datetime.now().strftime("%Y-%m-%d")
 
     @staticmethod
     def _validate_title(title: str) -> bool:

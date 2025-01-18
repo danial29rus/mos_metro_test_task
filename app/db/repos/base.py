@@ -14,24 +14,20 @@ ModelType = TypeVar("ModelType")
 class BaseRepo(ABC, Generic[ModelType]):
 
     model_type: ModelType
-    order_by: str  # Column name to order by
-
+    order_by: str
     def __init__(self, session: AsyncSession):
         self.session = session
 
     def dict_encoder(self, dict_to_encode: dict) -> dict:
-        """
-        Convert any datetime values in a dictionary to ISO format.
-        """
         for k, v in dict_to_encode.items():
             if isinstance(v, datetime):
                 dict_to_encode[
                     k
-                ] = v.isoformat()  # convert datetime object to ISO format
+                ] = v.isoformat() 
             elif isinstance(v, dict):
                 dict_to_encode[k] = self.dict_encoder(
                     v
-                )  # traverse nested dictionary
+                ) 
         return dict_to_encode
 
     async def _add_obj(self, model: ModelType) -> ModelType:
@@ -59,7 +55,7 @@ class BaseRepo(ABC, Generic[ModelType]):
         query = query.offset(offset).limit(limit)
         records = await self.session.execute(query)
         models = records.scalars().all()
-        return models  # noqa
+        return models 
 
     async def retrieve(self, id: int) -> ModelType:
         query = select(self.model_type).filter(self.model_type.id == id)
